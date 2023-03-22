@@ -8,6 +8,11 @@
 #define SW1 BIT3		/* switch1 is p1.3 */
 #define SWITCHES SW1		/* only 1 switch on this board */
 
+#define up_on 0
+#define dn_on 1
+#define up_off 2
+#define dn_off 3
+
 void main(void) 
 {  
   configureClocks();
@@ -23,51 +28,51 @@ void main(void)
   or_sr(0x18);  // CPU off, GIE on
 } 
 
-char button_state = 0;
+char button_state = up_on;
 
 void up_event()
 {
-  if (button_state == 0)
+  if (button_state == up_on)
     ;
   
-  else if (button_state == 1)
+  else if (button_state == dn_on)
     {
       P1OUT |= LED_GREEN;
       P1OUT &= ~LED_RED;
-      button_state = 0;
+      button_state = up_on;
     }
 
-  else if (button_state == 2)
+  else if (button_state == up_off)
     ;
 
-  else if (button_state == 3)
+  else if (button_state == dn_off)
     {
       P1OUT &= ~LED_GREEN;
       P1OUT |= LED_RED;
-      button_state = 2;
+      button_state = up_off;
     }
 }
 
 void dn_event()
 {
-  if (button_state == 0)
+  if (button_state == up_on)
     {
       P1OUT &= ~LED_GREEN;
       P1OUT |= LED_RED;
-      button_state = 3;
+      button_state = dn_off;
     }
 
-  else if (button_state == 1)
+  else if (button_state == dn_on)
     ;
 
-  else if (button_state == 2)
+  else if (button_state == up_off)
     {
       P1OUT |= LED_GREEN;
       P1OUT &= ~LED_RED;
-      button_state = 1;
+      button_state = dn_on;
     }
 
-  else if (button_state == 3)
+  else if (button_state == dn_off)
     ;
 }
 
