@@ -8,14 +8,11 @@
 #define SW4 BIT3
 #define SWITCHES (SW1 | SW2 | SW3 | SW4)
 
-#define up_on 0
-#define dn_on 1
-#define up_off 2
-#define dn_off 3
-
 
 int siren = 5000;
 int second_count = 0;
+
+int button_state = 0;
 
 int main() {
     configureClocks();
@@ -32,50 +29,6 @@ int main() {
     or_sr(0x18);          // CPU off, GIE on
 }
 
-char button_state = up_on;
-
-void up_event()
-{
-  if (button_state == up_on)
-    ;
-  
-  else if (button_state == dn_on)
-    {
-      buzzer_set_period(1000);
-      button_state = up_on;
-    }
-
-  else if (button_state == up_off)
-    ;
-
-  else if (button_state == dn_off)
-    {
-      buzzer_set_period(0);
-      button_state = up_off;
-    }  
-}
-
-void dn_event()
-{
-  if (button_state == up_on)
-    {
-      buzzer_set_period(0);
-      button_state == dn_off;
-    }
-
-  else if (button_state == dn_on)
-    ;
-
-  else if (button_state == up_off)
-    {
-      buzzer_set_period(1000);
-      button_state = dn_on;
-    }
-
-  else if (button_state == dn_off)
-    ;
-}
-
 void
 switch_interrupt_handler()
 {
@@ -83,7 +36,7 @@ switch_interrupt_handler()
   
   P2IES |= (p2val & SWITCHES);
   P2IES &= (p2val | ~SWITCHES);
-  
+
   
   /* Button 1 */
   if (!(p2val & SW1)) {
@@ -101,13 +54,33 @@ switch_interrupt_handler()
   }
 
   /* Button 4 */
-  else if (!(p2val & SW4)) {
-    buzzer_set_period(2500);
+  else if (!(p2val & SW4) & button_state == 0) {
+    buzzer_set_period(0);
+    button_state = 1;
   }
 
+  else if (!(p2val & SW4) & button_state == 1) {
+    buzzer_set_period(5000);
+    button_state = 0;
+  }
+  
+  /* Button Release */
   else {
-    buzzer_set_period(0);
-    configureClocks();
+    if (button_state == 0) {
+      buzzer_set_period(0);
+      configureClocks();
+    }
+    
+    else if (button_state == 1) {
+      buzzer_set_period(5000);
+      configureClocks();
+    }
+    
+    else
+      {
+	buzzer_set_period(0);
+	configureClocks();
+      }
   }
 }
 
