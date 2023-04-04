@@ -1,7 +1,6 @@
 #include <msp430.h>
 #include "libTimer.h"
 #include "buzzer.h"
-#include "led.h"
 
 #define SW1 BIT0
 #define SW2 BIT1
@@ -9,19 +8,15 @@
 #define SW4 BIT3
 #define SWITCHES (SW1 | SW2 | SW3 | SW4)
 
-int button_state = 0;
 
-int laser = 3500;
+int siren = 5000;
 int second_count = 0;
-int blink_count = 0;
+
+int button_state = 0;
 
 int main() {
     configureClocks();
 
-    P1DIR |= LEDS;
-    P1OUT &= ~LED_GREEN;
-    P1OUT &= ~LED_RED;
-    
     P2REN |= SWITCHES;
     P2IE |= SWITCHES;
     P2OUT |= SWITCHES;
@@ -45,17 +40,17 @@ switch_interrupt_handler()
   
   /* Button 1 */
   if (!(p2val & SW1)) {
-    enableWDTInterrupts();
+    buzzer_set_period(10000);
   }
   
   /* Button 2 */
   else if (!(p2val & SW2)) {
-    buzzer_set_period(3000);
+    buzzer_set_period(7500);
   }
   
   /* Button 3 */
   else if (!(p2val & SW3)) {
-    buzzer_set_period(1500);
+    enableWDTInterrupts();
   }
 
   /* Button 4 */
@@ -73,13 +68,11 @@ switch_interrupt_handler()
   else {
     if (button_state == 0) {
       buzzer_set_period(0);
-      P1OUT &= ~LEDS;
       configureClocks();
     }
     
     else if (button_state == 1) {
       buzzer_set_period(5000);
-      P1OUT |= LEDS;
       configureClocks();
     }
     
@@ -87,7 +80,6 @@ switch_interrupt_handler()
       {
 	buzzer_set_period(0);
 	configureClocks();
-	P1OUT &= ~LEDS;
       }
   }
 }
@@ -102,21 +94,11 @@ __interrupt_vec(PORT2_VECTOR) Port_2(){
 
 void 
 __interrupt_vec(WDT_VECTOR) WDT(){
-    blink_count ++;
-    if (blink_count >= 8)
-      {
-	blink_count = 0;
-	P1OUT |= LED_RED;
-      }
-    
-    else
-      P1OUT &= ~LED_RED;
-	
     second_count ++;
-    laser -= 50;
-    buzzer_set_period(laser);
-    if (second_count >= 50) {
+    siren += 50;
+    buzzer_set_period(siren);
+    if (second_count >= 500) {
       second_count = 0;
-      laser = 3500;
+      siren = 5000;
     }
 }
