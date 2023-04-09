@@ -23,3 +23,4 @@ buzzer.c: buzzer.h
 toy.c: buzzer.h
 
 wdInterruptHandler.o: buzzer.h
+
