@@ -99,10 +99,7 @@ switch_interrupt_handler2(){
   
     /* Button 2 */
     else if (!(p2val & SW2)) {
-      if (laser_color == BIT0)
-	laser_color = BIT6;
-      else
-	laser_color = BIT0;
+      laser_color_set(laser_color);
     }
   
     /* Button 3 */
@@ -211,6 +208,14 @@ laser_button(){
     sec_cnt = 0;
     laser = 3500;
   }
+}
+
+void
+laser_color_set(){
+  if (laser_color == BIT0)
+    laser_color = BIT6;
+  else
+    laser_color = BIT0;
 }
 
 void
