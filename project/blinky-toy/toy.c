@@ -211,14 +211,6 @@ laser_button(){
 }
 
 void
-laser_color_set(){
-  if (laser_color == BIT0)
-    laser_color = BIT6;
-  else
-    laser_color = BIT0;
-}
-
-void
 play_song(int a[], int len, int speed, int pause_len){
   for(int i = 0; i < len; i ++){
     buzzer_set_period(a[i]);
