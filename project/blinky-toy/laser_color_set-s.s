@@ -6,12 +6,14 @@
 	.equ GREEN, 64
 
 	.global laser_color_set
-	.extern laser_color
-
-laser_color_set:	
-	cmp #RED, &laser_color
+	.extern P1OUT
+	
+laser_color_set:
+	cmp #RED, r12
 	jc cg_red
-	mov #GREEN, &laser_color
+	bis #GREEN, &P1OUT
+	and #~RED, &P1OUT
 	jmp done
-cg_red:	mov #RED, &laser_color
+cg_red:	bis #RED, &P1OUT
+	and #~GREEN, &P1OUT
 done:	pop r0

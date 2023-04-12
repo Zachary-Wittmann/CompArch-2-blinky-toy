@@ -5,10 +5,10 @@
 #include "music.h"
 
 #define ARRLEN(x) (sizeof(x) / sizeof(x[0]))
-#define SW1 BIT0
-#define SW2 BIT1
-#define SW3 BIT2
-#define SW4 BIT3
+#define SW1 1
+#define SW2 2
+#define SW3 4
+#define SW4 8
 #define SWITCH1 SW4
 #define SWITCHES (SW1 | SW2 | SW3 | SW4)
 
@@ -17,7 +17,7 @@ int state = 1;
 int button_pushed = 0;
 int button_state = 0;
 
-int laser_color = BIT0;
+int laser_color = 1;
 int laser, og_laser = 3500;
 int sec_cnt, og_sec_cnt = 0;
 int blnk_cnt, og_blnk_cnt = 12;
@@ -99,7 +99,13 @@ switch_interrupt_handler2(){
   
     /* Button 2 */
     else if (!(p2val & SW2)) {
-      laser_color_set(laser_color);
+      if (laser_color == 1){
+	laser_color = 64;
+	laser_color_set(laser_color);
+      } else{
+	laser_color = 1;
+	laser_color_set(laser_color);
+      }
     }
   
     /* Button 3 */
@@ -199,7 +205,7 @@ laser_button(){
     }
 
   else
-    P1OUT &= ~laser_color;
+    P1OUT &= ~LEDS;
 
   sec_cnt ++;
   laser -= 50;
